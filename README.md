@@ -1,8 +1,9 @@
 # Capstone_Project_1
 Capstone Project for Springboard Software Engineering Course
 
-## Proposals
-### Scheduling App
+# Proposals
+My mentor and I have narrowed this project down to two proposals, one of which has a possible extension.
+## Scheduling App
 A website that people can use to coordinate schedules for meetups, business meetings, study sessions, or other events.
 The event organizer could create a link to share with attendees. After they reply, the organizer can see a visualization of which times work best.
 The organizer can either plan for a weekly event, or an event that happens once on a specific week.
@@ -13,10 +14,11 @@ There would be 5 "brushes" they could use to mark their availability:
 - minor inconvenience (could come, but not ideal)
 - major inconvenience (could come, but have to make some compromises)
 - can't come no matter what
+
 The attendees could also leave comments explaining a particular availability slot if they like.
 The app will weigh the number of people available for a certain time, and the type of availability, to create a heat map of best days and times.
 
-### Quiz/Studying App
+## Quiz/Studying App
 A website where users can submit quizzes and flashcards that they can use to study, and share those quizzes and flashcards with other users.
 Users will be able to search for different flashcards and quizzes by subject.
 Users will be able to import and export quizzes and flashcards as JSON files so they can backup their data. This ensures they have access to their study materials if they are not able to access the site.
