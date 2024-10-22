@@ -1,8 +1,8 @@
 # Capstone_Project_1
 Capstone Project for Springboard Software Engineering Course
 
-# Proposals
-My mentor and I have narrowed this project down to two proposals, one of which has a possible extension.
+# Project Ideas
+My mentor and I have narrowed this project down to two ideas, one of which has a possible extension.
 ## Scheduling App
 A website that people can use to coordinate schedules for meetups, business meetings, study sessions, or other events.
 The event organizer could create a link to share with attendees. After they reply, the organizer can see a visualization of which times work best.
