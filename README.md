@@ -1,7 +1,7 @@
 # Capstone_Project_1
 Capstone Project for Springboard Software Engineering Course
 
-# Project Ideas
+# Step 1: Project Ideas
 My mentor and I have narrowed this project down to two ideas, one of which has a possible extension.
 ## Scheduling App
 A website that people can use to coordinate schedules for meetups, business meetings, study sessions, or other events.
@@ -28,3 +28,6 @@ Users will be able to create accounts to save and favorite quizzes and flashcard
 The app could support selecting which server/"access node" they will use to upload and download content. 
 Users could clone the repository to create their own access node and self-host their content. Optionally, users could make their access node password protected.
 Organizations such as universities could use this feature to host their studying resources on their own servers.
+
+# Step 2: Scheduling App Project Proposal
+https://docs.google.com/document/d/1q-CadYHmvv3TuqabF--hJLfh68qeNMCg0lwYI3rP6Vk/edit?usp=sharing
