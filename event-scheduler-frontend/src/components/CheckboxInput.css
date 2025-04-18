@@ -1,0 +1,15 @@
+.checkbox-input {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.checkbox-input__label {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #165da9;
+  font-weight: bold;
+}
+
+.checkbox-input__checkbox {
+  accent-color: #11837b;
+}

@@ -1,0 +1,133 @@
+.event {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.event__heading {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #165da9;
+  margin: 0px;
+  margin-top: 20px;
+}
+
+.event__subheading {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #11837b;
+}
+
+.event__body__container {
+  background-color: #165da9;
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 50px;
+  padding: 20px;
+}
+
+.event__body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #f4f7fb;
+  font-weight: bold;
+  margin: 20px;
+}
+
+.event__notes__heading {
+  color: #165da9;
+  margin: 0px;
+  margin-top: 20px;
+}
+
+.event__notes__list {
+  margin: 20px;
+}
+
+.event__note {
+  color: #165da9;
+  font-weight: bold;
+  margin: 0px;
+}
+
+.event__share-url__heading {
+  color: #165da9;
+  margin: 0px;
+  margin-top: 20px;
+}
+
+.event__share-url {
+  width: 500px;
+  margin-top: 0;
+  border: 5px solid #165da9;
+  border-radius: 50px;
+}
+
+.event__heatmap__heading {
+  color: #165da9;
+  margin: 0px;
+  margin-top: 20px;
+}
+
+.event__heatmap {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-top: 20px;
+  display: flex;
+  border: 5px solid #165da9;
+  padding: 50px;
+  border-radius: 50px;
+}
+
+.event__heatmap__row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.event__heatmap__time-label {
+  border: 2px solid transparent;
+  height: 20px;
+  width: auto;
+  font-weight: bold;
+  color: #165da9;
+  text-align: right;
+}
+
+.event__heatmap__no-time-label {
+  border: 2px solid transparent;
+  height: 20px;
+  width: auto;
+}
+
+.event__heatmap__day-name {
+  color: #165da9;
+  font-weight: bold;
+  height: 20px;
+  border: 2px solid transparent;
+}
+.event__heatmap__timeslot {
+  border: 2px solid rgba(17, 131, 123, 1);
+  width: 100px;
+  height: 20px;
+}
+
+.event__button {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #11837b;
+  color: #f4f7fb;
+  border: transparent;
+  border-radius: 50px;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.event__mailto {
+  text-decoration: none;
+  background-color: #11837b;
+  padding: 10px;
+  border-radius: 50px;
+  color: #f4f7fb;
+  font-weight: bold;
+  margin-top: 20px;
+}

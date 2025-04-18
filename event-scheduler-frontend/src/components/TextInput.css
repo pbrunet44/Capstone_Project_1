@@ -1,0 +1,22 @@
+.text-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.text-input__label {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #165da9;
+  font-weight: bold;
+}
+
+.text-input__input {
+  width: 400px;
+  padding: 5px;
+  border: 5px solid #165da9;
+  background-color: transparent;
+  border-radius: 50px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+}
