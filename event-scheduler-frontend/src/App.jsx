@@ -13,7 +13,6 @@ export const noAlert = {
 };
 
 const serverUrl = import.meta.env.VITE_SERVER_URL;
-console.log(serverUrl);
 
 const setCookie = (name, value, maxAge) => {
   document.cookie = `${name}=${value};max-age=${maxAge};path=/`;
