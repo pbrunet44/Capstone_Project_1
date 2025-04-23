@@ -6,13 +6,32 @@ import Alert from "./components/Alert";
 import AlertContext from "./context/AlertContext";
 import TokenContext from "./context/TokenContext";
 import PageRouter from "./routes/PageRouter";
+import axios from "axios";
 
 export const noAlert = {
   msg: null,
   isErr: null,
 };
 
+const oneDaySecs = 24 * 60 * 60;
+
 const serverUrl = import.meta.env.VITE_SERVER_URL;
+const api = axios.create({
+  baseURL: serverUrl,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = JSON.parse(localStorage.getItem("jwt"));
+    if (token) {
+      config.headers.Authorization = `Bearer ${token.value}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const setCookie = (name, value, maxAge) => {
   document.cookie = `${name}=${value};max-age=${maxAge};path=/`;
@@ -27,9 +46,12 @@ function App() {
   const [jwt, setJwt] = useState(null);
 
   useEffect(() => {
-    const jwtCookie = getCookie("jwt");
-    if (jwtCookie !== "") {
-      setJwt(jwtCookie);
+    const token = JSON.parse(localStorage.getItem("jwt"));
+    const now = new Date();
+    if (token && now.toISOString() < token.expires) {
+      setJwt(token);
+    } else if (token) {
+      localStorage.removeItem("jwt");
     }
   }, []);
   useEffect(() => {
@@ -52,7 +74,7 @@ function App() {
 }
 
 export default App;
-export { serverUrl, getCookie, setCookie };
+export { getCookie, setCookie, oneDaySecs, api };
 
 //The following websites were referenced while making this code:
 //https://stackoverflow.com/questions/51109559/get-cookie-with-react
@@ -88,3 +110,6 @@ export { serverUrl, getCookie, setCookie };
 //https://stackoverflow.com/questions/13384808/how-do-i-set-up-mailto-for-bcc-only
 //https://vite.dev/guide/env-and-mode
 //https://stackoverflow.com/questions/49579028/adding-an-env-file-to-a-react-project
+//https://medium.com/@preetigusain9173/how-to-allow-cookies-to-be-shared-across-domains-eb1a0aee5af3
+//https://www.sohamkamani.com/javascript/localstorage-with-ttl-expiry/
+//https://stackoverflow.com/questions/13715561/compare-iso-8601-date-strings-in-javascript

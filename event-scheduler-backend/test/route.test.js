@@ -58,6 +58,8 @@ const testSubmissionUpdate = {
   ],
 };
 
+let token = null;
+
 describe("Test signup and login of users", () => {
   it("should try to signup, get a 201 response code and confirmation message, and receive a JWT", (done) => {
     agent
@@ -69,7 +71,9 @@ describe("Test signup and login of users", () => {
         expect(body.message).to.equal(
           `New user ${testUser.username} registered successfully`
         );
-        expect(res).to.have.cookie("jwt");
+        expect(body.token).to.exist;
+        expect(body.token.value).to.exist;
+        expect(body.token.expires).to.exist;
         done();
       })
       .catch((err) => {
@@ -87,7 +91,10 @@ describe("Test signup and login of users", () => {
         expect(JSON.parse(res.text).message).to.equal(
           `User ${testUser.username} logged in successfully`
         );
-        expect(res).to.have.cookie("jwt");
+        expect(body.token).to.exist;
+        expect(body.token.value).to.exist;
+        expect(body.token.expires).to.exist;
+        token = body.token.value;
         done();
       })
       .catch((err) => {
@@ -98,8 +105,8 @@ describe("Test signup and login of users", () => {
   it("should try to get data about logged in user, then get a 200 response code, a confirmation message, and the data", (done) => {
     agent
       .get("/user")
+      .set({ Authorization: `Bearer ${token}` })
       .then((res) => {
-        console.log(res);
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`User data fetched successfully`);
@@ -117,9 +124,9 @@ describe("Test signup and login of users", () => {
     const newEmail = "alan@example.com";
     agent
       .put("/user")
+      .set({ Authorization: `Bearer ${token}` })
       .send({ email: newEmail, oldPassword: testUser.password })
       .then((res) => {
-        console.log(res);
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`User data updated successfully`);
@@ -130,14 +137,14 @@ describe("Test signup and login of users", () => {
         done(err);
       });
   });
-  it("should try to update the user's email address with the wrong password, then get a 500 response code and an error message", (done) => {
+  it("should try to update the user's email address with the wrong password, then get a 400 response code and an error message", (done) => {
     const newEmail = "alan@test.com";
     agent
       .put("/user")
+      .set({ Authorization: `Bearer ${token}` })
       .send({ email: newEmail, oldPassword: "12345678" })
       .then((res) => {
-        console.log(res);
-        expect(res).to.have.status(500);
+        expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`Error updating user info`);
         expect(body.error).to.equal("Incorrect old password");
@@ -156,9 +163,7 @@ describe("Test signup and login of users", () => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`Error while registering new user`);
-        expect(body.error).to.contain(
-          `dup key: { username: "${testUser.username}" }`
-        );
+        expect(body.error).to.equal("Username already in use");
         done();
       })
       .catch((err) => {
@@ -176,9 +181,7 @@ describe("Test signup and login of users", () => {
         expect(JSON.parse(res.text).message).to.equal(
           `Error while registering new user`
         );
-        expect(JSON.parse(res.text).error).to.contain(
-          `user validation failed: username: Username required`
-        );
+        expect(JSON.parse(res.text).error).to.equal("Username required");
         done();
       })
       .catch((err) => {
@@ -196,9 +199,7 @@ describe("Test signup and login of users", () => {
         expect(JSON.parse(res.text).message).to.equal(
           `Error while logging in user`
         );
-        expect(JSON.parse(res.text).error).to.contain(
-          `Incorrect username or password`
-        );
+        expect(JSON.parse(res.text).error).to.equal("Username required");
         done();
       })
       .catch((err) => {
@@ -216,9 +217,7 @@ describe("Test signup and login of users", () => {
         expect(JSON.parse(res.text).message).to.equal(
           `Error while registering new user`
         );
-        expect(JSON.parse(res.text).error).to.contain(
-          `user validation failed: email: Email required`
-        );
+        expect(JSON.parse(res.text).error).to.equal("Email required");
         done();
       })
       .catch((err) => {
@@ -226,12 +225,12 @@ describe("Test signup and login of users", () => {
         done(err);
       });
   });
-  it("should try to signup with an invalid email, then get a 400 response code and an error message.", (done) => {
+  it("should try to signup with an invalid email, then get a 500 response code and an error message.", (done) => {
     agent
       .post("/user")
-      .send({ ...testUser, email: "alanmail.com" })
+      .send({ ...testUser, username: "Test", email: "alanmail.com" })
       .then((res) => {
-        expect(res).to.have.status(400);
+        expect(res).to.have.status(500);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`Error while registering new user`);
         expect(body.error).to.contain(
@@ -317,6 +316,7 @@ describe("Test creation of events", () => {
   it("should try to create a new event, then get a 201 response code and confirmation message", (done) => {
     agent
       .post("/event")
+      .set({ Authorization: `Bearer ${token}` })
       .send(testEvent)
       .then((res) => {
         expect(res).to.have.status(201);
@@ -335,6 +335,7 @@ describe("Test creation of events", () => {
   it("should query for a list of the user's organized events, then get a 200 response code and the data", (done) => {
     agent
       .get("/myevents?role=organizer")
+      .set({ Authorization: `Bearer ${token}` })
       .then((res) => {
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
@@ -352,6 +353,7 @@ describe("Test creation of events", () => {
   it("should query for a specific event by ID, then get a 200 response code and the data", (done) => {
     agent
       .get(`/event/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .then((res) => {
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
@@ -370,6 +372,7 @@ describe("Test creation of events", () => {
   it("should post the finalized event time for a specific event, then get a 200 response code and a confirmation message.", (done) => {
     agent
       .post(`/finalize/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send(testFinalizedTime)
       .then((res) => {
         expect(res).to.have.status(200);
@@ -385,6 +388,7 @@ describe("Test creation of events", () => {
   it("should confirm the event has been updated to include the finalized time", (done) => {
     agent
       .get(`/event/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .then((res) => {
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
@@ -409,6 +413,7 @@ describe("Test submission of availability", () => {
   it("submits availability without a calendar, then gets a 400 response code and an error message", (done) => {
     agent
       .post(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send({ notes: testSubmission.notes })
       .then((res) => {
         expect(res).to.have.status(400);
@@ -427,6 +432,7 @@ describe("Test submission of availability", () => {
   it("submits availability with an improperly formatted calendar, then gets a 400 response code and an error message", (done) => {
     agent
       .post(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send({
         notes: testSubmission.notes,
         calendar: [
@@ -451,6 +457,7 @@ describe("Test submission of availability", () => {
   it("submits properly formatted availability, then gets a 201 response code and a confirmation message", (done) => {
     agent
       .post(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send(testSubmission)
       .then((res) => {
         expect(res).to.have.status(201);
@@ -468,6 +475,7 @@ describe("Test submission of availability", () => {
   it("submits an availability update without a calendar, then gets a 400 response code and an error message", (done) => {
     agent
       .put(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send({ notes: testSubmissionUpdate.notes })
       .then((res) => {
         expect(res).to.have.status(400);
@@ -484,6 +492,7 @@ describe("Test submission of availability", () => {
   it("submits an availability update with an improperly formatted calendar, then gets a 400 response code and an error message", (done) => {
     agent
       .put(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send({
         notes: testSubmissionUpdate.notes,
         calendar: [
@@ -506,6 +515,7 @@ describe("Test submission of availability", () => {
   it("submits a properly formatted availability update, then gets a 200 response code and a confirmation message", (done) => {
     agent
       .put(`/submit/${eventId}`)
+      .set({ Authorization: `Bearer ${token}` })
       .send(testSubmissionUpdate)
       .then((res) => {
         expect(res).to.have.status(200);

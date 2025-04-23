@@ -6,9 +6,12 @@ import {
   login_post,
   user_get,
   user_put,
+  hello_get,
 } from "../controllers/authController.js";
 
 const authRoutes = Router();
+
+authRoutes.get("/", hello_get);
 
 authRoutes.post("/user", user_post);
 

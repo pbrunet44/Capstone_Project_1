@@ -1,17 +1,15 @@
 // Created by Philip Brunet
 
 import { useState, useEffect, useContext } from "react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import AlertContext from "../context/AlertContext";
 import TokenContext from "../context/TokenContext";
 import "./Event.css";
 import _ from "lodash";
 import Modal from "../components/Modal";
-import axios from "axios";
-import { serverUrl } from "../App";
+import { api, getCookie, setCookie } from "../App";
 import FinalizationModal from "../components/FinalizationModal";
 import AvailabilityModal from "../components/AvailabilityModal";
-import { getCookie, setCookie } from "../App";
 
 const emptyEvent = {
   name: "",
@@ -62,7 +60,6 @@ function Event() {
   const [organizerName, setOrganizerName] = useState(null);
   const [userIsOrganizer, setUserIsOrganizer] = useState(false);
   let initialSetup = false;
-  const navigate = useNavigate();
 
   const closeModal = () => {
     setCurrModal(null);
@@ -72,12 +69,12 @@ function Event() {
     setCurrModal(null);
     if (submitted) {
       // update existing submission
-      axios
-        .put(`${serverUrl}/submit/${id}`, newSubmision, {
+      api
+        .put(`/submit/${id}`, newSubmision, {
           withCredentials: jwt !== null,
         })
         .then((updateRes) => {
-          axios.get(`${serverUrl}/submissions/${id}`).then((submissionsRes) => {
+          api.get(`/submissions/${id}`).then((submissionsRes) => {
             setSubmissions(submissionsRes.data.submissions);
             setSubmitted(true);
             setAlert({
@@ -97,13 +94,19 @@ function Event() {
         });
     } else {
       // New submission
-      axios
-        .post(`${serverUrl}/submit/${id}`, newSubmision, {
+      api
+        .post(`/submit/${id}`, newSubmision, {
           withCredentials: jwt !== null,
         })
         .then((res) => {
           const tempSubmissions = _.cloneDeep(submissions);
-          tempSubmissions.push(newSubmision);
+          tempSubmissions.push({
+            ...newSubmision,
+            name:
+              newSubmision.useAccountData && userIsOrganizer
+                ? organizerName
+                : newSubmision.name,
+          });
           setSubmissions(tempSubmissions);
           setSubmitted(true);
           if (jwt === null) {
@@ -142,9 +145,9 @@ function Event() {
 
   const submitFinalizationModal = (selections) => {
     setCurrModal(null);
-    axios
+    api
       .post(
-        `${serverUrl}/finalize/${id}`,
+        `/finalize/${id}`,
         {
           finalizedTime: `${selections.day.value} at ${selections.time.value}`,
         },
@@ -185,15 +188,15 @@ function Event() {
   useEffect(() => {
     if (!initialSetup && id) {
       initialSetup = true;
-      axios
-        .get(`${serverUrl}/event/${id}`, { withCredentials: true })
+      api
+        .get(`/event/${id}`, { withCredentials: true })
         .then((res) => {
           setOrganizerName(res.data.organizerName);
           setUserIsOrganizer(res.data.userIsOrganizer);
-          const jwtCookie = getCookie("jwt");
-          // Need to check cookie directly instead of Token Context in case
+          // Need to check local storage directly instead of Token Context in case
           // context isn't loaded yet
-          if (jwtCookie !== "") {
+          const token = JSON.parse(localStorage.getItem("jwt"));
+          if (token) {
             //if logged in, see if user has submitted by checking backend response
             setSubmitted(res.data.userHasSubmitted);
           } else {
@@ -207,8 +210,8 @@ function Event() {
             }
           }
           setEvent(res.data.event);
-          axios
-            .get(`${serverUrl}/submissions/${id}`)
+          api
+            .get(`/submissions/${id}`)
             .then((res) => {
               setSubmissions(res.data.submissions);
             })

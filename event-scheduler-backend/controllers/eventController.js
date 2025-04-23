@@ -6,11 +6,13 @@ import User from "../models/User.js";
 
 const event_post = async (req, res) => {
   const { name, description, isRecurring } = req.body;
+  let errorCode = 500;
   if (isRecurring === undefined) {
     isRecurring = false;
   }
   try {
     if (!res.locals.user) {
+      errorCode = 400;
       throw new Error("Only registered users can organize new events");
     }
     const event = await Event.create({
@@ -23,7 +25,7 @@ const event_post = async (req, res) => {
       .status(201)
       .send({ message: `New event ${name} posted successfully`, event });
   } catch (err) {
-    return res.status(400).send({
+    return res.status(errorCode).send({
       message: "Error posting new event",
       error: err.message,
     });
@@ -31,13 +33,16 @@ const event_post = async (req, res) => {
 };
 
 const event_get_by_id = async (req, res) => {
+  let errorCode = 500;
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
+      errorCode = 400;
       throw new Error("Event not found");
     }
     const organizer = await User.findById(event.userId);
     if (!organizer) {
+      errorCode = 400;
       throw new Error("Could not fetch event organizer info");
     }
     let userHasSubmitted = false;
@@ -60,7 +65,7 @@ const event_get_by_id = async (req, res) => {
       userHasSubmitted,
     });
   } catch (err) {
-    return res.status(400).send({
+    return res.status(errorCode).send({
       message: "Error fetching event info",
       error: err.message,
     });
@@ -79,8 +84,10 @@ const queryStrToDate = (query) => {
 };
 
 const myevents_get = async (req, res) => {
+  let errorCode = 500;
   try {
     if (!res.locals.user) {
+      errorCode = 400;
       throw new Error("Only registered users can view their events");
     }
     const eventsPerPage = 5;
@@ -88,6 +95,7 @@ const myevents_get = async (req, res) => {
     let filter = { userId: res.locals.user._id };
     if (req.query.before) {
       if (req.query.before.length !== 8 || isNaN(req.query.before)) {
+        errorCode = 400;
         throw new Error(
           "Before and after queries must be formatted as YYYYMMDD"
         );
@@ -99,6 +107,7 @@ const myevents_get = async (req, res) => {
     }
     if (req.query.after) {
       if (req.query.after.length !== 8 || isNaN(req.query.after)) {
+        errorCode = 400;
         throw new Error(
           "Before and after queries must be formatted as YYYYMMDD"
         );
@@ -140,7 +149,7 @@ const myevents_get = async (req, res) => {
       numPages,
     });
   } catch (err) {
-    return res.status(400).send({
+    return res.status(errorCode).send({
       message: "Error fetching events",
       error: err.message,
     });
@@ -149,11 +158,14 @@ const myevents_get = async (req, res) => {
 
 const finalize_post_by_id = async (req, res) => {
   const { finalizedTime } = req.body;
+  let errorCode = 500;
   try {
     if (!res.locals.user) {
+      errorCode = 400;
       throw new Error("Only registered users can finalize their events");
     }
     if (!finalizedTime) {
+      errorCode = 400;
       throw new Error(
         "Must provide a finalized time in order to finalize event."
       );
@@ -171,14 +183,16 @@ const finalize_post_by_id = async (req, res) => {
           .status(200)
           .send({ message: "Event finalized successfully", event });
       } else {
+        errorCode = 400;
         throw new Error("Only the event host can finalize an event");
       }
     } else {
+      errorCode = 400;
       throw new Error("Event not found");
     }
   } catch (err) {
     console.error(err);
-    return res.status(400).send({
+    return res.status(errorCode).send({
       message: "Error finalizing event",
       error: err.message,
     });

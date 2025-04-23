@@ -22,8 +22,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
 const limiter = rateLimit({
-  windowMs: 60 * 1000, //once per minute
-  limit: 30, //can send 30 messages
+  windowMs: 60 * 1000 * 5, //once per 5 minutes
+  limit: 50, //can send 50 messages
   standardHeaders: "draft-8",
   legacyHeaders: false,
 });

@@ -1,10 +1,9 @@
 // Created by Philip Brunet
 
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
-import { setCookie } from "../App";
 import "./NavBar.css";
 
 function NavBar() {
@@ -12,7 +11,7 @@ function NavBar() {
   const { setAlert } = useContext(AlertContext);
   const navigate = useNavigate();
   const logout = () => {
-    setCookie("jwt", "", 1);
+    localStorage.removeItem("jwt");
     setJwt(null);
     setAlert({ msg: "Logged out successfully.", isErr: false });
   };

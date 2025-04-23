@@ -4,8 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { serverUrl } from "../App";
+import { api } from "../App";
 import TextInput from "../components/TextInput";
 import TextArea from "../components/TextArea";
 import CheckboxInput from "../components/CheckboxInput";
@@ -30,9 +29,8 @@ function CreateEvent() {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("submission:", submission);
-    axios
-      .post(`${serverUrl}/event`, submission, { withCredentials: true })
+    api
+      .post("/event", submission, { withCredentials: true })
       .then((res) => {
         setAlert({
           msg: res.data.message,
@@ -42,7 +40,7 @@ function CreateEvent() {
         navigate(`/event/${res.data.event._id.toString()}`);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         const errMsg =
           err.response &&
           err.response.data &&

@@ -3,10 +3,9 @@
 import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Signup.css";
-import axios from "axios";
-import { getCookie, serverUrl } from "../App";
+import { api } from "../App";
 import TextInput from "../components/TextInput";
 
 function Signup() {
@@ -38,13 +37,13 @@ function Signup() {
         isErr: true,
       });
     } else {
-      axios
-        .post(`${serverUrl}/user`, submission, {
+      api
+        .post(`/user`, submission, {
           withCredentials: true,
         })
         .then((res) => {
-          const jwtCookie = getCookie("jwt");
-          setJwt(jwtCookie);
+          localStorage.setItem("jwt", JSON.stringify(res.data.token));
+          setJwt(res.data.token);
           setSubmission(emptySubmission);
           setAlert({
             msg: res.data.message,

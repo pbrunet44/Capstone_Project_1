@@ -3,10 +3,9 @@
 import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import axios from "axios";
-import { getCookie, serverUrl } from "../App";
+import { api } from "../App";
 import TextInput from "../components/TextInput.jsx";
 
 function Login() {
@@ -32,13 +31,13 @@ function Login() {
         isErr: true,
       });
     } else {
-      axios
-        .post(`${serverUrl}/login`, submission, {
+      api
+        .post("/login", submission, {
           withCredentials: true,
         })
         .then((res) => {
-          const jwtCookie = getCookie("jwt");
-          setJwt(jwtCookie);
+          localStorage.setItem("jwt", JSON.stringify(res.data.token));
+          setJwt(res.data.token);
           setSubmission(emptySubmission);
           setAlert({
             msg: res.data.message,
@@ -46,7 +45,7 @@ function Login() {
           });
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           const errMsg =
             err.response &&
             err.response.data &&

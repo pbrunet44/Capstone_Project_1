@@ -1,12 +1,11 @@
 // Created by Philip Brunet
 
 import { useState, useEffect, useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AlertContext from "../context/AlertContext";
 import TokenContext from "../context/TokenContext";
-import axios from "axios";
 import "./EventList.css";
-import { serverUrl } from "../App";
+import { api } from "../App";
 import EventTile from "../components/EventTile";
 
 function EventList() {
@@ -24,8 +23,8 @@ function EventList() {
   }, [jwt]);
 
   useEffect(() => {
-    axios
-      .get(`${serverUrl}/myevents?role=${role}&p=${page[role]}`, {
+    api
+      .get(`/myevents?role=${role}&p=${page[role]}`, {
         withCredentials: true,
       })
       .then((res) => {

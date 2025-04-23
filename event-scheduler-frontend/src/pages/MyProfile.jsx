@@ -1,10 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./MyProfile.css";
-import axios from "axios";
-import { getCookie, serverUrl } from "../App";
+import { api } from "../App";
 import TextInput from "../components/TextInput.jsx";
 
 function MyProfile() {
@@ -39,8 +38,8 @@ function MyProfile() {
         isErr: true,
       });
     } else {
-      axios
-        .put(`${serverUrl}/user`, submission, {
+      api
+        .put("/user", submission, {
           withCredentials: true,
         })
         .then((res) => {
@@ -57,7 +56,7 @@ function MyProfile() {
           });
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           const errMsg =
             err.response &&
             err.response.data &&
@@ -81,15 +80,15 @@ function MyProfile() {
   useEffect(() => {
     if (!initialSetup) {
       initialSetup = true;
-      axios
-        .get(`${serverUrl}/user`, {
+      api
+        .get("/user", {
           withCredentials: true,
         })
         .then((res) => {
           setUser(res.data.user);
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           const errMsg =
             err.response &&
             err.response.data &&
