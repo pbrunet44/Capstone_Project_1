@@ -51,7 +51,7 @@ function Signup() {
           });
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           const errMsg =
             err.response &&
             err.response.data &&

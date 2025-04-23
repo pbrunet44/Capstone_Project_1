@@ -152,7 +152,6 @@ const user_put = async (req, res) => {
       update = { ...update, password: hashNewPw };
     }
     await User.findByIdAndUpdate(res.locals.user._id, update);
-    console.log(update);
     return res.status(200).send({
       message: "User data updated successfully",
     });
