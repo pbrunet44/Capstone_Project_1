@@ -9,14 +9,30 @@ const agent = chai.request.agent(app);
 before((done) => {
   console.log("Pre-test database cleanup");
   User.deleteMany({})
-    .then(() => done())
+    .then(() =>
+      Event.deleteMany({})
+        .then(() =>
+          Submission.deleteMany({})
+            .then(() => done())
+            .catch((err) => done(err))
+        )
+        .catch((err) => done(err))
+    )
     .catch((err) => done(err));
 });
 
 after((done) => {
   console.log("Post-test database cleanup");
   User.deleteMany({})
-    .then(() => done())
+    .then(() =>
+      Event.deleteMany({})
+        .then(() =>
+          Submission.deleteMany({})
+            .then(() => done())
+            .catch((err) => done(err))
+        )
+        .catch((err) => done(err))
+    )
     .catch((err) => done(err));
 });
 
