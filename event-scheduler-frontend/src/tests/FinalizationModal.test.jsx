@@ -43,7 +43,6 @@ describe("FinalizationModal component", () => {
         closeModal={() => {}}
       />
     );
-    //const daySelectElement = screen.getByLabelText("Day");
     const daySelectElement =
       container.getElementsByClassName("select-day__input");
     expect(daySelectElement.length).toBe(1);
@@ -55,7 +54,6 @@ describe("FinalizationModal component", () => {
         closeModal={() => {}}
       />
     );
-    //const daySelectElement = screen.getByLabelText("Day");
     const timeSelectElement =
       container.getElementsByClassName("select-time__input");
     expect(timeSelectElement.length).toBe(1);

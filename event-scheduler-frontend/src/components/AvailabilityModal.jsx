@@ -7,9 +7,7 @@ import { numToHour } from "../pages/Event";
 import TextInput from "./TextInput";
 import _ from "lodash";
 import CheckboxInput from "./CheckboxInput";
-import { useActionData } from "react-router-dom";
 
-//const emptyCalendar = Array.from({ length: 7 }, () => new Array(24).fill(0));
 const emptySubmission = {
   name: "",
   email: "",

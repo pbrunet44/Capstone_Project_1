@@ -2,20 +2,29 @@
 
 import { Router } from "express";
 import {
-  event_post,
-  event_get_by_id,
-  myevents_get,
-  finalize_post_by_id,
+  eventPost,
+  eventGetById,
+  myeventsGet,
+  finalizePostById,
 } from "../controllers/eventController.js";
+import { requireLogin } from "../middlewares/authMiddleware.js";
 
 const eventRoutes = Router();
 
-eventRoutes.post("/event", event_post);
+// Validation middlewares
+eventRoutes.post("/event", requireLogin);
 
-eventRoutes.get("/event/:id", event_get_by_id);
+eventRoutes.get("/myevents/", requireLogin);
 
-eventRoutes.get("/myevents/", myevents_get);
+eventRoutes.post("/finalize/:id", requireLogin);
 
-eventRoutes.post("/finalize/:id", finalize_post_by_id);
+// Routes
+eventRoutes.post("/event", eventPost);
+
+eventRoutes.get("/event/:id", eventGetById);
+
+eventRoutes.get("/myevents/", myeventsGet);
+
+eventRoutes.post("/finalize/:id", finalizePostById);
 
 export default eventRoutes;

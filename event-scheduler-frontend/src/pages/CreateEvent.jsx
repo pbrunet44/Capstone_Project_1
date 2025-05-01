@@ -4,11 +4,11 @@ import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
-import { api } from "../App";
 import TextInput from "../components/TextInput";
 import TextArea from "../components/TextArea";
 import CheckboxInput from "../components/CheckboxInput";
 import "./CreateEvent.css";
+import EventService from "../services/eventService";
 
 function CreateEvent() {
   const emptySubmission = {
@@ -29,8 +29,7 @@ function CreateEvent() {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    api
-      .post("/event", submission, { withCredentials: true })
+    EventService.eventPost(submission)
       .then((res) => {
         setAlert({
           msg: res.data.message,

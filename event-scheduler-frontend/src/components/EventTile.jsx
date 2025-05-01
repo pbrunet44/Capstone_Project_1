@@ -1,6 +1,5 @@
 // Created by Philip Brunet
 
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./EventTile.css";
 

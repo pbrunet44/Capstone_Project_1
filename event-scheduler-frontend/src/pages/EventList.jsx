@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import AlertContext from "../context/AlertContext";
 import TokenContext from "../context/TokenContext";
 import "./EventList.css";
-import { api } from "../App";
 import EventTile from "../components/EventTile";
+import EventService from "../services/eventService";
 
 function EventList() {
   const { jwt, setJwt } = useContext(TokenContext);
@@ -23,10 +23,7 @@ function EventList() {
   }, [jwt]);
 
   useEffect(() => {
-    api
-      .get(`/myevents?role=${role}&p=${page[role]}`, {
-        withCredentials: true,
-      })
+    EventService.myeventsGet(role, page[role])
       .then((res) => {
         setEvents(res.data.events);
         setNumPages(res.data.numPages);

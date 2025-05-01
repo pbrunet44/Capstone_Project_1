@@ -44,13 +44,18 @@ app.use(submissionRoutes);
 
 export default app;
 
-//The following websites were referenced while creating this app:
-//https://stackoverflow.com/questions/43002444/make-axios-send-cookies-in-its-requests-automatically
-//https://www.npmjs.com/package/cors
-//https://www.geeksforgeeks.org/mongoose-timestamps/
-//https://mongoosejs.com/docs/timestamps.html
-//https://stackoverflow.com/questions/26008555/creating-a-foreign-key-relationship-in-mongoose
-//https://www.slingacademy.com/article/mongoose-compare-two-dates-in-query/
-//https://www.chaijs.com/api/bdd/#method_exist
-//https://stackoverflow.com/questions/27101240/typeerror-converting-circular-structure-to-json-in-nodejs
-//https://www.geeksforgeeks.org/mongoose-countdocuments-function/
+// The following websites were referenced while creating the backend of this app:
+// https://stackoverflow.com/questions/43002444/make-axios-send-cookies-in-its-requests-automatically
+// https://www.npmjs.com/package/cors
+// https://www.geeksforgeeks.org/mongoose-timestamps/
+// https://mongoosejs.com/docs/timestamps.html
+// https://stackoverflow.com/questions/26008555/creating-a-foreign-key-relationship-in-mongoose
+// https://www.slingacademy.com/article/mongoose-compare-two-dates-in-query/
+// https://www.chaijs.com/api/bdd/#method_exist
+// https://stackoverflow.com/questions/27101240/typeerror-converting-circular-structure-to-json-in-nodejs
+// https://www.geeksforgeeks.org/mongoose-countdocuments-function/
+// https://www.codementor.io/@evanbechtol/node-service-oriented-architecture-12vjt9zs9i
+// https://stackoverflow.com/questions/54604954/how-to-use-service-layer-in-node-js
+// https://dev.to/manuartero/custom-exceptions-in-modern-js-ts-2in9
+// https://expressjs.com/en/guide/using-middleware.html#middleware.router
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static

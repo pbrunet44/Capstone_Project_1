@@ -1,21 +1,18 @@
 // Created by Philip Brunet
 
-import Event from "../models/Event.js";
-import Submission from "../models/Submission.js";
-import User from "../models/User.js";
+import AuthError from "../authError.js";
+import QueryError from "../queryError.js";
+import AuthService from "../services/authService.js";
+import EventService from "../services/eventService.js";
+import SubmissionService from "../services/submissionService.js";
 
-const event_post = async (req, res) => {
+const eventPost = async (req, res) => {
   const { name, description, isRecurring } = req.body;
-  let errorCode = 500;
   if (isRecurring === undefined) {
     isRecurring = false;
   }
   try {
-    if (!res.locals.user) {
-      errorCode = 400;
-      throw new Error("Only registered users can organize new events");
-    }
-    const event = await Event.create({
+    const event = await EventService.createEvent({
       name,
       description,
       isRecurring,
@@ -25,29 +22,26 @@ const event_post = async (req, res) => {
       .status(201)
       .send({ message: `New event ${name} posted successfully`, event });
   } catch (err) {
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error posting new event",
       error: err.message,
     });
   }
 };
 
-const event_get_by_id = async (req, res) => {
-  let errorCode = 500;
+const eventGetById = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await EventService.getEventById(req.params.id);
     if (!event) {
-      errorCode = 400;
-      throw new Error("Event not found");
+      throw new QueryError("Event not found", 404);
     }
-    const organizer = await User.findById(event.userId);
+    const organizer = await AuthService.getUserById(event.userId);
     if (!organizer) {
-      errorCode = 400;
-      throw new Error("Could not fetch event organizer info");
+      throw new AuthError("Could not fetch event organizer info", 404);
     }
     let userHasSubmitted = false;
     if (res.locals.user) {
-      const submission = await Submission.findOne({
+      const submission = await SubmissionService.getSubmission({
         userId: res.locals.user._id,
         eventId: event._id,
       });
@@ -65,7 +59,7 @@ const event_get_by_id = async (req, res) => {
       userHasSubmitted,
     });
   } catch (err) {
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error fetching event info",
       error: err.message,
     });
@@ -83,21 +77,16 @@ const queryStrToDate = (query) => {
   return new Date(dateStr);
 };
 
-const myevents_get = async (req, res) => {
-  let errorCode = 500;
+const myeventsGet = async (req, res) => {
   try {
-    if (!res.locals.user) {
-      errorCode = 400;
-      throw new Error("Only registered users can view their events");
-    }
     const eventsPerPage = 5;
     const page = req.query.p || 0;
     let filter = { userId: res.locals.user._id };
     if (req.query.before) {
       if (req.query.before.length !== 8 || isNaN(req.query.before)) {
-        errorCode = 400;
-        throw new Error(
-          "Before and after queries must be formatted as YYYYMMDD"
+        throw new QueryError(
+          "Before and after queries must be formatted as YYYYMMDD",
+          400
         );
       }
       filter = {
@@ -107,9 +96,9 @@ const myevents_get = async (req, res) => {
     }
     if (req.query.after) {
       if (req.query.after.length !== 8 || isNaN(req.query.after)) {
-        errorCode = 400;
-        throw new Error(
-          "Before and after queries must be formatted as YYYYMMDD"
+        throw new QueryError(
+          "Before and after queries must be formatted as YYYYMMDD",
+          400
         );
       }
       filter = {
@@ -123,23 +112,27 @@ const myevents_get = async (req, res) => {
     let events = [];
     let numPages = 1;
     if (req.query.role === "organizer") {
-      const numEvents = await Event.countDocuments(filter);
+      const numEvents = await EventService.countEvents(filter);
       numPages = Math.ceil(numEvents / eventsPerPage);
-      events = await Event.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(page * eventsPerPage)
-        .limit(eventsPerPage);
+      events = await EventService.getEventsPaginated(
+        filter,
+        { createdAt: -1 },
+        page,
+        eventsPerPage
+      );
     }
     if (!req.query.role || req.query.role === "attendee") {
-      const numEvents = await Submission.countDocuments(filter);
+      const numEvents = await SubmissionService.countSubmissions(filter);
       numPages = Math.ceil(numEvents / eventsPerPage);
-      const submissions = await Submission.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(page * eventsPerPage)
-        .limit(eventsPerPage);
+      const submissions = await SubmissionService.getSubmissionsPaginated(
+        filter,
+        { createdAt: -1 },
+        page,
+        eventsPerPage
+      );
       for (let i = 0; i < submissions.length; i++) {
         const submission = submissions[i];
-        const event = await Event.findById(submission.eventId);
+        const event = await EventService.getEventById(submission.eventId);
         events.push(event);
       }
     }
@@ -149,32 +142,25 @@ const myevents_get = async (req, res) => {
       numPages,
     });
   } catch (err) {
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error fetching events",
       error: err.message,
     });
   }
 };
 
-const finalize_post_by_id = async (req, res) => {
+const finalizePostById = async (req, res) => {
   const { finalizedTime } = req.body;
-  let errorCode = 500;
   try {
-    if (!res.locals.user) {
-      errorCode = 400;
-      throw new Error("Only registered users can finalize their events");
-    }
     if (!finalizedTime) {
-      errorCode = 400;
-      throw new Error(
-        "Must provide a finalized time in order to finalize event."
+      throw new QueryError(
+        "Must provide a finalized time in order to finalize event.",
+        400
       );
     }
-    const event = await Event.findByIdAndUpdate(
+    const event = await EventService.updateEventById(
       req.params.id,
-      {
-        finalizedTime,
-      },
+      { finalizedTime },
       { new: true }
     );
     if (event) {
@@ -183,20 +169,18 @@ const finalize_post_by_id = async (req, res) => {
           .status(200)
           .send({ message: "Event finalized successfully", event });
       } else {
-        errorCode = 400;
-        throw new Error("Only the event host can finalize an event");
+        throw new AuthError("Only the event host can finalize an event", 403);
       }
     } else {
-      errorCode = 400;
-      throw new Error("Event not found");
+      throw new QueryError("Event not found", 404);
     }
   } catch (err) {
     console.error(err);
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error finalizing event",
       error: err.message,
     });
   }
 };
 
-export { event_post, event_get_by_id, myevents_get, finalize_post_by_id };
+export { eventPost, eventGetById, myeventsGet, finalizePostById };

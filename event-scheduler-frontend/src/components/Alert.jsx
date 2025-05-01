@@ -1,6 +1,5 @@
 // Created by Philip Brunet
 
-import { useState } from "react";
 import "./Alert.css";
 
 function Alert({ msg, isErr }) {
@@ -8,7 +7,7 @@ function Alert({ msg, isErr }) {
     <div
       className="alert"
       style={{
-        border: isErr ? "5px solid red" : "5px solid green",
+        border: isErr ? "5px solid #ff7276" : "5px solid #11837b",
         backgroundColor: isErr ? "darkred" : "darkgreen",
       }}
     >

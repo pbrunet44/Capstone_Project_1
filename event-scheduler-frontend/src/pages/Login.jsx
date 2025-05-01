@@ -5,8 +5,8 @@ import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import { api } from "../App";
 import TextInput from "../components/TextInput.jsx";
+import AuthService from "../services/authService.js";
 
 function Login() {
   const emptySubmission = {
@@ -31,10 +31,7 @@ function Login() {
         isErr: true,
       });
     } else {
-      api
-        .post("/login", submission, {
-          withCredentials: true,
-        })
+      AuthService.loginPost(submission)
         .then((res) => {
           localStorage.setItem("jwt", JSON.stringify(res.data.token));
           setJwt(res.data.token);

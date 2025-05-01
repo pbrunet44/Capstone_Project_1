@@ -1,15 +1,13 @@
 // Created by Philip Brunet
 
-import { useState, useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import AlertContext from "../context/AlertContext";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import TokenContext from "../context/TokenContext";
 import "./HomePage.css";
 
 function HomePage() {
   const navigate = useNavigate();
   const { jwt } = useContext(TokenContext);
-  const { setAlert } = useContext(AlertContext);
   return (
     <div className="home-page">
       <h1 className="home-page__heading">Scheduling conflicts?</h1>
@@ -74,14 +72,15 @@ function HomePage() {
 export default HomePage;
 
 // Images credit:
-//https://www.pexels.com/photo/people-gathering-inside-white-building-1181408/
-//https://images.pexels.com/photos/1181408/pexels-photo-1181408.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
 
-//https://www.pexels.com/photo/group-of-people-sitting-on-white-mat-on-grass-field-745045/
-//https://images.pexels.com/photos/745045/pexels-photo-745045.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
+// Christina Morillo
+// https://www.pexels.com/photo/people-gathering-inside-white-building-1181408/
+// https://images.pexels.com/photos/1181408/pexels-photo-1181408.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
 
-//https://www.pexels.com/photo/men-s-white-button-up-dress-shirt-708440/
-//https://images.pexels.com/photos/708440/pexels-photo-708440.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
+// Helena Lopes
+// https://www.pexels.com/photo/group-of-people-sitting-on-white-mat-on-grass-field-745045/
+// https://images.pexels.com/photos/745045/pexels-photo-745045.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
 
-//https://www.pexels.com/photo/person-in-black-pants-sitting-on-floor-4691567/
-//https://images.pexels.com/photos/4691567/pexels-photo-4691567.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1
+// cottonbro studio
+// https://www.pexels.com/photo/person-in-black-pants-sitting-on-floor-4691567/
+// https://images.pexels.com/photos/4691567/pexels-photo-4691567.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1

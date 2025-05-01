@@ -2,23 +2,45 @@
 
 import { Router } from "express";
 import {
-  user_post,
-  login_post,
-  user_get,
-  user_put,
-  hello_get,
+  userPost,
+  loginPost,
+  userGet,
+  userPut,
+  helloGet,
 } from "../controllers/authController.js";
+import {
+  requireUsername,
+  requireEmail,
+  requirePassword,
+  requireMinPasswordLength,
+  requireLogin,
+} from "../middlewares/authMiddleware.js";
 
 const authRoutes = Router();
 
-authRoutes.get("/", hello_get);
+// Validation middlewares
+authRoutes.post("/user", requireUsername);
+authRoutes.post("/user", requireEmail);
+authRoutes.post("/user", requirePassword);
+authRoutes.post("/user", requireMinPasswordLength);
 
-authRoutes.post("/user", user_post);
+authRoutes.post("/login", requireUsername);
+authRoutes.post("/login", requirePassword);
 
-authRoutes.post("/login", login_post);
+authRoutes.get("/user", requireLogin);
 
-authRoutes.get("/user", user_get);
+authRoutes.put("/user", requirePassword);
+authRoutes.put("/user", requireLogin);
 
-authRoutes.put("/user", user_put);
+// Routes
+authRoutes.get("/", helloGet);
+
+authRoutes.post("/user", userPost);
+
+authRoutes.post("/login", loginPost);
+
+authRoutes.get("/user", userGet);
+
+authRoutes.put("/user", userPut);
 
 export default authRoutes;

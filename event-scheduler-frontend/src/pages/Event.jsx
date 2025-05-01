@@ -7,9 +7,11 @@ import TokenContext from "../context/TokenContext";
 import "./Event.css";
 import _ from "lodash";
 import Modal from "../components/Modal";
-import { api, getCookie, setCookie } from "../App";
+import { getCookie, setCookie } from "../App";
 import FinalizationModal from "../components/FinalizationModal";
 import AvailabilityModal from "../components/AvailabilityModal";
+import EventService from "../services/eventService";
+import SubmissionService from "../services/submissionService";
 
 const emptyEvent = {
   name: "",
@@ -69,12 +71,9 @@ function Event() {
     setCurrModal(null);
     if (submitted) {
       // update existing submission
-      api
-        .put(`/submit/${id}`, newSubmision, {
-          withCredentials: jwt !== null,
-        })
+      SubmissionService.submitPutById(id, newSubmision, jwt !== null)
         .then((updateRes) => {
-          api.get(`/submissions/${id}`).then((submissionsRes) => {
+          SubmissionService.submissionsGetById(id).then((submissionsRes) => {
             setSubmissions(submissionsRes.data.submissions);
             setSubmitted(true);
             setAlert({
@@ -94,10 +93,7 @@ function Event() {
         });
     } else {
       // New submission
-      api
-        .post(`/submit/${id}`, newSubmision, {
-          withCredentials: jwt !== null,
-        })
+      SubmissionService.submitPostById(id, newSubmision, jwt !== null)
         .then((res) => {
           const tempSubmissions = _.cloneDeep(submissions);
           tempSubmissions.push({
@@ -145,14 +141,11 @@ function Event() {
 
   const submitFinalizationModal = (selections) => {
     setCurrModal(null);
-    api
-      .post(
-        `/finalize/${id}`,
-        {
-          finalizedTime: `${selections.day.value} at ${selections.time.value}`,
-        },
-        { withCredentials: true }
-      )
+    SubmissionService.finalizePostById(
+      id,
+      selections.day.value,
+      selections.time.value
+    )
       .then((res) => {
         setAlert({
           msg: res.data.message,
@@ -188,8 +181,7 @@ function Event() {
   useEffect(() => {
     if (!initialSetup && id) {
       initialSetup = true;
-      api
-        .get(`/event/${id}`, { withCredentials: true })
+      EventService.eventGetById(id)
         .then((res) => {
           setOrganizerName(res.data.organizerName);
           setUserIsOrganizer(res.data.userIsOrganizer);
@@ -210,8 +202,7 @@ function Event() {
             }
           }
           setEvent(res.data.event);
-          api
-            .get(`/submissions/${id}`)
+          SubmissionService.submissionsGetById(id)
             .then((res) => {
               setSubmissions(res.data.submissions);
             })
@@ -284,11 +275,11 @@ function Event() {
         </h2>
       )}
       {id && event && event.finalizedTime && submissions && userIsOrganizer && (
-        //It would be more secure to send emails server side, never providing them to the organizer,
-        //but doing so would require buying a website domain and running an email server with an API.
-        //I am not currently able to implement that functionality for this project.
-        //I made sure to be clear emails are shared with the organizer for contacting purposes and
-        //made the process opt-in. Users may avoid providing an email in their submission if they wish.
+        // It would be more secure to send emails server side, never providing them to the organizer,
+        // but doing so would require buying a website domain and running an email server with an API.
+        // I am not currently able to implement that functionality for this project.
+        // I made sure to be clear emails are shared with the organizer for contacting purposes and
+        // made the process opt-in. Users may avoid providing an email in their submission if they wish.
         <a
           className="event__mailto"
           href={`mailto:?bcc=${submissions.reduce((emailList, submission) => {

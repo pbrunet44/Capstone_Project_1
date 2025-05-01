@@ -1,15 +1,17 @@
+// Created by Philip Brunet
+
 import { useContext, useEffect, useState } from "react";
 import TokenContext from "../context/TokenContext";
 import AlertContext from "../context/AlertContext";
 import { useNavigate } from "react-router-dom";
 import "./MyProfile.css";
-import { api } from "../App";
 import TextInput from "../components/TextInput.jsx";
+import AuthService from "../services/authService.js";
 
 function MyProfile() {
   const emptySubmission = {
     username: "",
-    oldPassword: "",
+    password: "",
     newPassword: "",
     repeatNewPassword: "",
     email: "",
@@ -38,10 +40,7 @@ function MyProfile() {
         isErr: true,
       });
     } else {
-      api
-        .put("/user", submission, {
-          withCredentials: true,
-        })
+      AuthService.userPut(submission)
         .then((res) => {
           setUser({
             ...user,
@@ -80,10 +79,7 @@ function MyProfile() {
   useEffect(() => {
     if (!initialSetup) {
       initialSetup = true;
-      api
-        .get("/user", {
-          withCredentials: true,
-        })
+      AuthService.userGet()
         .then((res) => {
           setUser(res.data.user);
         })
@@ -169,10 +165,10 @@ function MyProfile() {
           required={false}
         />
         <TextInput
-          name="oldPassword"
+          name="password"
           type="password"
           placeholder="old password"
-          value={submission.oldPassword}
+          value={submission.password}
           onChange={handleChange}
           labelText="Old Password (Required)"
           required={true}

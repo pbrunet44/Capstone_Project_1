@@ -1,34 +1,22 @@
 // Created by Philip Brunet
 
-import Event from "../models/Event.js";
-import Submission from "../models/Submission.js";
-import User from "../models/User.js";
+import QueryError from "../queryError.js";
+import AuthService from "../services/authService.js";
+import EventService from "../services/eventService.js";
+import SubmissionService from "../services/submissionService.js";
 
-const submit_post_by_id = async (req, res) => {
+const submitPostById = async (req, res) => {
   const { name, email, notes, calendar, useAccountData } = req.body;
-  let errorCode = 500;
   try {
-    if (!calendar) {
-      errorCode = 400;
-      throw new Error("Submission must include calendar");
+    if (email) {
+      AuthService.verifyEmail(email);
     }
-    if (calendar.length !== 7) {
-      errorCode = 400;
-      throw new Error("Calendar must be a 7 by 24 grid");
-    }
-    for (let i = 0; i < 7; i++) {
-      if (calendar[i].length !== 24) {
-        errorCode = 400;
-        throw new Error("Calendar must be a 7 by 24 grid");
-      }
-    }
-    const event = await Event.findById(req.params.id);
+    const event = await EventService.getEventById(req.params.id);
     if (!event) {
-      errorCode = 400;
-      throw new Error("Event not found");
+      throw new QueryError("Event not found", 404);
     }
     if (res.locals.user) {
-      Submission.create({
+      SubmissionService.createSubmission({
         userId: res.locals.user._id,
         name: useAccountData ? res.locals.user.username : name,
         email: useAccountData ? res.locals.user.email : email,
@@ -41,16 +29,18 @@ const submit_post_by_id = async (req, res) => {
       });
     } else {
       if (email) {
-        const prevSubmission = await Submission.findOne({
+        const prevSubmission = await SubmissionService.getSubmission({
           email: email,
           eventId: event._id,
         });
         if (prevSubmission) {
-          errorCode = 400;
-          throw new Error("Availability already submitted using that email");
+          throw new QueryError(
+            "Availability already submitted using that email",
+            400
+          );
         }
       }
-      Submission.create({
+      SubmissionService.createSubmission({
         name,
         email,
         eventId: event._id,
@@ -62,43 +52,24 @@ const submit_post_by_id = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error submitting availability for event",
       error: err.message,
     });
   }
 };
 
-const submit_put_by_id = async (req, res) => {
+const submitPutById = async (req, res) => {
   const { name, email, notes, calendar } = req.body;
-  let errorCode = 500;
   try {
-    if (!res.locals.user) {
-      errorCode = 400;
-      throw new Error(
-        "Only authenticated users can edit their event availability"
-      );
+    if (email) {
+      AuthService.verifyEmail(email);
     }
-    if (!calendar) {
-      errorCode = 400;
-      throw new Error("Submission must include calendar");
-    }
-    if (calendar.length !== 7) {
-      errorCode = 400;
-      throw new Error("Calendar must be a 7 by 24 grid");
-    }
-    for (let i = 0; i < 7; i++) {
-      if (calendar[i].length !== 24) {
-        errorCode = 400;
-        throw new Error("Calendar must be a 7 by 24 grid");
-      }
-    }
-    const event = await Event.findById(req.params.id);
+    const event = await EventService.getEventById(req.params.id);
     if (!event) {
-      errorCode = 400;
-      throw new Error("Event not found");
+      throw new QueryError("Event not found", 404);
     }
-    const submission = await Submission.findOneAndUpdate(
+    const submission = await SubmissionService.updateSubmission(
       {
         userId: res.locals.user._id,
         eventId: req.params.id,
@@ -111,36 +82,38 @@ const submit_put_by_id = async (req, res) => {
       }
     );
     if (!submission) {
-      errorCode = 400;
-      throw new Error("Submission for event with that ID not found");
+      throw new QueryError("Submission for event with that ID not found", 404);
     }
     return res.status(200).send({
       message: `Updated availability for event ${event.name} successfully`,
     });
   } catch (err) {
-    return res.status(errorCode).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error updating availability for event",
       error: err.message,
     });
   }
 };
 
-const submissions_get_by_id = async (req, res) => {
+const submissionsGetById = async (req, res) => {
   try {
     let isOrganizer = false;
     if (res.locals.user) {
-      const event = await Event.findById(req.params.id);
+      const event = await EventService.getEventById(req.params.id);
       if (res.locals.user.id === event.userId.toString()) {
         isOrganizer = true;
       }
     }
     let submissions = [];
     if (!isOrganizer) {
-      submissions = await Submission.find({
-        eventId: req.params.id,
-      }).select("calendar");
+      submissions = await SubmissionService.getFieldsFromSubmissions(
+        {
+          eventId: req.params.id,
+        },
+        "calendar"
+      );
     } else {
-      submissions = await Submission.find({
+      submissions = await SubmissionService.getSubmissions({
         eventId: req.params.id,
       });
     }
@@ -148,11 +121,11 @@ const submissions_get_by_id = async (req, res) => {
       .status(200)
       .send({ message: "Submissions fetched successfully", submissions });
   } catch (err) {
-    return res.status(500).send({
+    return res.status(err.status ? err.status : 500).send({
       message: "Error fetching submissions for event",
       error: err.message,
     });
   }
 };
 
-export { submit_post_by_id, submit_put_by_id, submissions_get_by_id };
+export { submitPostById, submitPutById, submissionsGetById };

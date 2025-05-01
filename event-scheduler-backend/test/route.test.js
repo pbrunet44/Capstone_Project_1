@@ -1,7 +1,9 @@
 import User from "../models/User.js";
+import Event from "../models/Event.js";
+import Submission from "../models/Submission.js";
 import app from "../app.js";
 import * as chaiModule from "chai";
-import { expect, should, use } from "chai";
+import { expect } from "chai";
 import chaiHttp from "chai-http";
 const chai = chaiModule.use(chaiHttp);
 const agent = chai.request.agent(app);
@@ -141,7 +143,7 @@ describe("Test signup and login of users", () => {
     agent
       .put("/user")
       .set({ Authorization: `Bearer ${token}` })
-      .send({ email: newEmail, oldPassword: testUser.password })
+      .send({ email: newEmail, password: testUser.password })
       .then((res) => {
         expect(res).to.have.status(200);
         const body = JSON.parse(res.text);
@@ -158,11 +160,11 @@ describe("Test signup and login of users", () => {
     agent
       .put("/user")
       .set({ Authorization: `Bearer ${token}` })
-      .send({ email: newEmail, oldPassword: "12345678" })
+      .send({ email: newEmail, password: "12345678" })
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(`Error updating user info`);
+        expect(body.message).to.equal("Error updating user info");
         expect(body.error).to.equal("Incorrect old password");
         done();
       })
@@ -194,9 +196,7 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(JSON.parse(res.text).message).to.equal(
-          `Error while registering new user`
-        );
+        expect(JSON.parse(res.text).message).to.equal("Bad request");
         expect(JSON.parse(res.text).error).to.equal("Username required");
         done();
       })
@@ -212,9 +212,7 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(JSON.parse(res.text).message).to.equal(
-          `Error while logging in user`
-        );
+        expect(JSON.parse(res.text).message).to.equal("Bad request");
         expect(JSON.parse(res.text).error).to.equal("Username required");
         done();
       })
@@ -230,9 +228,7 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(JSON.parse(res.text).message).to.equal(
-          `Error while registering new user`
-        );
+        expect(JSON.parse(res.text).message).to.equal("Bad request");
         expect(JSON.parse(res.text).error).to.equal("Email required");
         done();
       })
@@ -249,9 +245,7 @@ describe("Test signup and login of users", () => {
         expect(res).to.have.status(500);
         const body = JSON.parse(res.text);
         expect(body.message).to.equal(`Error while registering new user`);
-        expect(body.error).to.contain(
-          `user validation failed: email: Invalid email address`
-        );
+        expect(body.error).to.contain(`email: Invalid email address`);
         done();
       })
       .catch((err) => {
@@ -266,8 +260,8 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(`Error while registering new user`);
-        expect(body.error).to.contain(`Password required`);
+        expect(body.message).to.equal("Bad request");
+        expect(body.error).to.contain("Password required");
         done();
       })
       .catch((err) => {
@@ -282,8 +276,8 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(`Error while logging in user`);
-        expect(body.error).to.contain(`Password required`);
+        expect(body.message).to.equal("Bad request");
+        expect(body.error).to.contain("Password required");
         done();
       })
       .catch((err) => {
@@ -298,9 +292,9 @@ describe("Test signup and login of users", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(`Error while registering new user`);
+        expect(body.message).to.equal("Bad request");
         expect(body.error).to.contain(
-          `Passwords must be at least 8 characters long`
+          "Passwords must be at least 8 characters long"
         );
         done();
       })
@@ -434,9 +428,7 @@ describe("Test submission of availability", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(
-          "Error submitting availability for event"
-        );
+        expect(body.message).to.equal("Bad request");
         expect(body.error).to.equal("Submission must include calendar");
         done();
       })
@@ -459,9 +451,7 @@ describe("Test submission of availability", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal(
-          "Error submitting availability for event"
-        );
+        expect(body.message).to.equal("Bad request");
         expect(body.error).to.equal("Calendar must be a 7 by 24 grid");
         done();
       })
@@ -496,7 +486,7 @@ describe("Test submission of availability", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal("Error updating availability for event");
+        expect(body.message).to.equal("Bad request");
         expect(body.error).to.equal("Submission must include calendar");
         done();
       })
@@ -519,7 +509,7 @@ describe("Test submission of availability", () => {
       .then((res) => {
         expect(res).to.have.status(400);
         const body = JSON.parse(res.text);
-        expect(body.message).to.equal("Error updating availability for event");
+        expect(body.message).to.equal("Bad request");
         expect(body.error).to.equal("Calendar must be a 7 by 24 grid");
         done();
       })

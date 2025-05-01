@@ -2,17 +2,26 @@
 
 import { Router } from "express";
 import {
-  submit_post_by_id,
-  submit_put_by_id,
-  submissions_get_by_id,
+  submitPostById,
+  submitPutById,
+  submissionsGetById,
 } from "../controllers/submissionController.js";
+import { requireLogin } from "../middlewares/authMiddleware.js";
+import { requireCalendar } from "../middlewares/submissionMiddleware.js";
 
 const submissionRoutes = Router();
 
-submissionRoutes.post("/submit/:id", submit_post_by_id);
+// Validation middlewares
+submissionRoutes.post("/submit/:id", requireCalendar);
 
-submissionRoutes.put("/submit/:id", submit_put_by_id);
+submissionRoutes.put("/submit/:id", requireLogin);
+submissionRoutes.put("/submit/:id", requireCalendar);
 
-submissionRoutes.get("/submissions/:id", submissions_get_by_id);
+// Routes
+submissionRoutes.post("/submit/:id", submitPostById);
+
+submissionRoutes.put("/submit/:id", submitPutById);
+
+submissionRoutes.get("/submissions/:id", submissionsGetById);
 
 export default submissionRoutes;
